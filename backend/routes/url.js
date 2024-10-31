@@ -9,9 +9,9 @@ router.get("/test", (req, res) => {
 
 router.post("/url", handleGenarateNewShortUrl);
 
-router.get("/url/:id",handleRedirectToOriginalUrl)
+router.get("/url/:id", handleRedirectToOriginalUrl);
 
-router.get("/url/analytics/:id",handleUrlClickAnalytics);
+router.get("/url/analytics/:id", handleUrlClickAnalytics);
 
 
 

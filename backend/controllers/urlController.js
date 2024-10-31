@@ -1,11 +1,18 @@
 import { nanoid } from "nanoid";
-import URL from "../models/url.js"
+import URL from "../models/url.js";
+
+import { genarateNewShortUrlSchema,idInputSchema } from "../schema.js";
 
 
 export const handleGenarateNewShortUrl = async (req, res) => {
     try {
-        const {url} = req.body;
-        if(!url) return res.json({success:false,msg:"URL is required"});
+        // input validation with zod
+        const createPayload = req.body;
+        const parsedPayload = genarateNewShortUrlSchema.safeParse(createPayload);
+        if(!parsedPayload.success) {
+            return res.json({success:false,msg:"You send the wrong input"});
+        }
+        const url = req.body.url;
         const shortId = nanoid(6);
         const newUrl = await URL.create({shortId,redirectUrl:url,visitHistory:[]});
         return res.status(201).json({success:true,newUrl});
@@ -18,7 +25,13 @@ export const handleGenarateNewShortUrl = async (req, res) => {
 export const handleRedirectToOriginalUrl = async function(req,res){
     try {
         const {id} = req.params;
-        if(!id) return res.json({success:false,msg:"Url id is required"});
+        // input validation with zod
+        const createPayload = req.params;
+        const parsedPayload = idInputSchema.safeParse(createPayload);
+        if(!parsedPayload.success) {
+            return res.json({success:false,msg:"You send the wrong input"});
+        }
+        // if(!id) return res.json({success:false,msg:"Url id is required"});
         const url = await URL.findOne({shortId:id});
         if(!url) return res.json({success:false,msg:"Invalid Url!"});
         url.visitHistory.push({timestamp:Date.now()});
@@ -33,7 +46,12 @@ export const handleRedirectToOriginalUrl = async function(req,res){
 export const handleUrlClickAnalytics = async function(req,res) {
     try {
         const {id} = req.params;
-        if(!id) return res.json({success:false,msg:"Url id is required"});
+        // input validation with zod
+        const createPayload = req.params;
+        const parsedPayload = idInputSchema.safeParse(createPayload);
+        if(!parsedPayload.success) {
+            return res.json({success:false,msg:"You send the wrong input"});
+        }
         const url = await URL.findOne({shortId:id});
         if(!url) return res.json({success:false,msg:"Invalid Url!"});
         const urlVisitedCount = url.visitHistory.length;
